@@ -25,10 +25,34 @@ public class Network
             _nodes.Add(_inputs[i].Id, _inputs[i]);
         }
         
+        _inputs[inputCount] = new Node(this, null, 0);
+        _inputs[inputCount].Value = 1;
+        
         for(int i = 0; i < outputCount; i++)
         {
             _outputs[i] = new Node(this, outputActivationFunction, 100000000000);
             _nodes.Add(_outputs[i].Id, _outputs[i]);
+        }
+    }
+
+    public Network(Network network)
+    {
+        _species = network._species;
+        _hiddenActivationFunction = network._hiddenActivationFunction;
+        _neurons = new Dictionary<Guid, Neuron>();
+        _nodes = new Dictionary<Guid, Node>();
+        _inputs = network._inputs.Select(x => new Node(x)).ToArray();
+        _outputs = network._outputs.Select(x => new Node(x)).ToArray();
+        
+        foreach (var (key, value) in network._neurons)
+        {
+            _neurons.Add(key, new Neuron(value));
+        }
+        
+        foreach(var (key, value) in network._nodes)
+        {
+            if (_inputs.Contains(value) || _outputs.Contains(value)) continue;
+            _nodes.Add(key, new Node(value));
         }
     }
 
@@ -99,8 +123,7 @@ public class Network
     {
         var settings = _species.Parameters;
         var addNeuronRate = _species.Size < settings.LargeSpeciesThreshold ? settings.SmallSpeciesAddNeuronRate : settings.LargeSpeciesAddNeuronRate;
-        var v = _species.NextFloat();
-        if (v <= addNeuronRate)
+        if (_species.NextFloat() <= addNeuronRate)
         {
             var len = _nodes.Count;
             Node? n1 = null;
@@ -120,8 +143,7 @@ public class Network
             AddNeuron(n1, n2);
         }
 
-        v = _species.NextFloat();
-        if (v <= settings.AddNodeRate)
+        if (_species.NextFloat() <= settings.AddNodeRate)
         {
             var neuron = _neurons.Values.Where(x=>x.Enabled).Sample();
             AddNode(neuron);

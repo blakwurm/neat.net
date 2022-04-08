@@ -31,6 +31,7 @@ public class Neuron
         Input = neuron.Input;
         Output = neuron.Output;
         Weight = neuron.Weight;
+        Enabled = neuron.Enabled;
     }
 
     public override bool Equals(object? obj)

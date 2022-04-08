@@ -26,6 +26,16 @@ public class Node
         Outputs = new HashSet<Guid>();
         Priority = priority;
     }
+
+    public Node(Node node)
+    {
+        _network = node._network;
+        _activation = node._activation;
+        Id = node.Id;
+        Inputs = new HashSet<Guid>(node.Inputs);
+        Outputs = new HashSet<Guid>(node.Outputs);
+        Priority = node.Priority;
+    }
     
     public void Resolve()
     {
